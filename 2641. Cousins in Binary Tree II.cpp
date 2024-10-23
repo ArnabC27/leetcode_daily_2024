@@ -9,36 +9,50 @@
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
 class Solution {
- public:
-  TreeNode* replaceValueInTree(TreeNode* root) {
-    vector<int> levelSums;
-    dfs(root, 0, levelSums);
-    return replace(root, 0, new TreeNode(0), levelSums);
-  }
-
- private:
-  void dfs(TreeNode* root, int level, vector<int>& levelSums) {
-    if (root == nullptr)
-      return;
-    if (levelSums.size() == level)
-      levelSums.push_back(0);
-    levelSums[level] += root->val;
-    dfs(root->left, level + 1, levelSums);
-    dfs(root->right, level + 1, levelSums);
-  }
-
-  TreeNode* replace(TreeNode* root, int level, TreeNode* curr, const vector<int>& levelSums) {
-    const int nextLevel = level + 1;
-    const int nextLevelCousinsSum = nextLevel >= levelSums.size() ? 0 : levelSums[nextLevel] - (root->left == nullptr ? 0 : root->left->val) - (root->right == nullptr ? 0 : root->right->val);
-    if (root->left != nullptr) {
-      curr->left = new TreeNode(nextLevelCousinsSum);
-      replace(root->left, level + 1, curr->left, levelSums);
+public:
+    TreeNode* replaceValueInTree(TreeNode* root) {
+        memset(s, 0, sizeof(s));
+        dfs1(root, 0);
+        root->val = 0;
+        dfs2(root, 0);
+        return root;
     }
-    if (root->right != nullptr) {
-      curr->right = new TreeNode(nextLevelCousinsSum);
-      replace(root->right, level + 1, curr->right, levelSums);
-    }
-    return curr;
-  }
+
+private:
+    int s[100010];
+    void dfs1(TreeNode* root, int depth) {
+        if (!root) {
+            return;
+        }
+        s[depth] += root->val;
+        dfs1(root->left, depth + 1);
+        dfs1(root->right, depth + 1);
+    };
+
+    void dfs2(TreeNode* root, int depth) {
+        int l = root->left ? root->left->val : 0;
+        int r = root->right ? root->right->val : 0;
+        int sub = l + r;
+        ++depth;
+        if (root->left) {
+            root->left->val = s[depth] - sub;
+            dfs2(root->left, depth);
+        }
+        if (root->right) {
+            root->right->val = s[depth] - sub;
+            dfs2(root->right, depth);
+        }
+    };
 };
